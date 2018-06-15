@@ -1,3 +1,2 @@
-# gbrt
-
+# GBRT
 Gradient Boosting Regression Trees

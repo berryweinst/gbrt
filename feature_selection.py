@@ -1,6 +1,7 @@
 import functools
 import operator
 
+
 def tree_feature_importance(dataset, label_name, tree):
     features_dict = {}
     root = tree.get_root()
@@ -29,7 +30,6 @@ def tree_feature_importance(dataset, label_name, tree):
 
             this_level = next_level
     return features_dict
-
 
 
 def ensemble_feature_importance(dataset, label_name, tree_ensemble):

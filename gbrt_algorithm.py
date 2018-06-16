@@ -73,7 +73,7 @@ def gbrt(train_data, test_data, label_name, params):
 
     f = pd.Series(data=np.zeros_like(y_train), index=y_train.index)
     for m in range(params.num_trees):
-        grad = y_train - f
+        grad = -(y_train - f)
         train_data[label_name] = grad
         sub_data = train_data.sample(frac=params.sub_samp)
         tree = cart(sub_data, params.max_depth, params.min_node_size, label_name, params)
@@ -82,7 +82,7 @@ def gbrt(train_data, test_data, label_name, params):
             tree.root.print_sub_tree()
 
         y_tree_pred = train_data.apply(lambda xi: tree.evaluate(xi[:]), axis=1)
-        weight = sum(grad * y_tree_pred) / sum(y_tree_pred ** 2) * params.weight_decay
+        weight = sum(-grad * y_tree_pred) / sum(y_tree_pred ** 2) * params.weight_decay
         tree_ensemble.add_tree(tree, weight)
         f += weight * y_tree_pred
 

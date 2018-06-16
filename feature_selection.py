@@ -25,9 +25,10 @@ def tree_feature_importance(dataset, label_name, tree):
             if node.j not in features_dict.keys():
                 features_dict[node.j] = 0
             features_dict[node.j] += \
-                      functools.reduce(operator.add, [0] + [(row[label_name] - c_L) ** 2 for _, row in RL_data.iterrows()]) + \
-                      functools.reduce(operator.add, [0] + [(row[label_name] - c_R) ** 2 for _, row in RR_data.iterrows()]) - \
-                      functools.reduce(operator.add, [0] + [(row[label_name] - c_bef) ** 2 for _, row in data.iterrows()])
+                      functools.reduce(operator.add, [0] + [(row[label_name] - c_bef) ** 2 for _, row in data.iterrows()]) - \
+                      functools.reduce(operator.add, [0] + [(row[label_name] - c_L) ** 2 for _, row in RL_data.iterrows()]) - \
+                      functools.reduce(operator.add, [0] + [(row[label_name] - c_R) ** 2 for _, row in RR_data.iterrows()])
+
 
         this_level = next_level
     return features_dict

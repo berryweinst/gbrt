@@ -1,10 +1,18 @@
 from trees_data_structures import *
 import numpy as np
 import pandas as pd
-import random
 
 
-def get_optimal_partition(data, label_name):
+
+def get_percentiles(data, num_thresholds):
+    percent_step = 1.0 / (num_thresholds+1)
+    percentiles = np.arange(percent_step, 1.0, percent_step, dtype=float)
+    percentiles_values = data.quantile(percentiles, 'nearest').unique()
+    return percentiles_values
+
+
+
+def get_optimal_partition(data, label_name, params):
     x = data.drop(label_name, axis=1)
     y = data[label_name]
 
@@ -12,7 +20,8 @@ def get_optimal_partition(data, label_name):
     best_col_name, best_split_value = None, None
 
     for col_name in x.columns:
-        col_unique_values = x[col_name].unique()
+        # col_unique_values = x[col_name].unique()
+        col_unique_values = get_percentiles(x[col_name], params.num_thresholds)
         for unique_value in col_unique_values:
             y_left = y[x[col_name] <= unique_value]
             y_right = y[x[col_name] > unique_value]
@@ -26,7 +35,7 @@ def get_optimal_partition(data, label_name):
     return best_col_name, best_split_value
 
 
-def cart(data, max_depth, min_node_size, label_name):
+def cart(data, max_depth, min_node_size, label_name, params):
     tree = RegressionTree()
 
     tree_levels_list = {0: [(data, tree.get_root())]}
@@ -34,7 +43,7 @@ def cart(data, max_depth, min_node_size, label_name):
     for depth in range(max_depth):
         tree_levels_list[depth+1] = []
         for node_data, node_reference in tree_levels_list[depth]:  # for each depth, iterate over all nodes and split as necessary
-            col_name, split_value = get_optimal_partition(node_data, label_name)
+            col_name, split_value = get_optimal_partition(node_data, label_name, params)
             left_node_data = node_data[node_data[col_name] <= split_value]
             right_node_data = node_data[node_data[col_name] > split_value]
 
@@ -67,7 +76,7 @@ def gbrt(train_data, test_data, label_name, params):
         grad = y_train - f
         train_data[label_name] = grad
         sub_data = train_data.sample(frac=params.sub_samp)
-        tree = cart(sub_data, params.max_depth, params.min_node_size, label_name)
+        tree = cart(sub_data, params.max_depth, params.min_node_size, label_name, params)
 
         if params.verbose:
             tree.root.print_sub_tree()

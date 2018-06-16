@@ -2,6 +2,7 @@ import functools
 import operator
 
 
+
 def tree_feature_importance(dataset, label_name, tree):
     features_dict = {}
     root = tree.get_root()
@@ -20,9 +21,9 @@ def tree_feature_importance(dataset, label_name, tree):
             c_bef = data[label_name].mean()
             c_L = RL_data[label_name].mean()
             c_R = RR_data[label_name].mean()
+
             if node.j not in features_dict.keys():
                 features_dict[node.j] = 0
-
             features_dict[node.j] += \
                       functools.reduce(operator.add, [0] + [(row[label_name] - c_L) ** 2 for _, row in RL_data.iterrows()]) + \
                       functools.reduce(operator.add, [0] + [(row[label_name] - c_R) ** 2 for _, row in RR_data.iterrows()]) - \
@@ -40,7 +41,7 @@ def ensemble_feature_importance(dataset, label_name, tree_ensemble):
             if feature_id not in ensemble_features_dict.keys():
                 ensemble_features_dict[feature_id] = 0
             ensemble_features_dict[feature_id] += score
-    ensemble_features_dict = sorted(ensemble_features_dict.items(), key=operator.itemgetter(1), reverse=True)
-    most_imp_val = ensemble_features_dict.values()[0]
-    ensemble_features_dict = {k: float(v / most_imp_val) for k, v in ensemble_features_dict.items()}
+    ensemble_features_sorted = sorted(ensemble_features_dict.items(), key=operator.itemgetter(1), reverse=True)
+    most_imp_val = ensemble_features_sorted[0][1]
+    ensemble_features_dict = {k: float(v / most_imp_val) for k, v in ensemble_features_sorted}
     return ensemble_features_dict

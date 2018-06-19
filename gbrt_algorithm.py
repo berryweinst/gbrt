@@ -1,6 +1,7 @@
 from trees_data_structures import *
 import numpy as np
 import pandas as pd
+from time import time
 
 
 
@@ -66,19 +67,21 @@ def cart(data, max_depth, min_node_size, label_name, params):
 
 
 def gbrt(train_data, test_data, label_name, params):
+    start_time = time()
     tree_ensemble = RegressionTreeEnsemble()
 
     y_train = train_data[label_name].copy()
     y_test = test_data[label_name]
 
     f = pd.Series(data=np.zeros_like(y_train), index=y_train.index)
+    logs = {'trees': [], 'train_loss': [], 'test_loss': []}
     for m in range(params.num_trees):
         grad = -(y_train - f)
         train_data[label_name] = grad
         sub_data = train_data.sample(frac=params.sub_samp)
         tree = cart(sub_data, params.max_depth, params.min_node_size, label_name, params)
 
-        if params.verbose:
+        if params.verbose == 2:
             tree.root.print_sub_tree()
 
         y_tree_pred = train_data.apply(lambda xi: tree.evaluate(xi[:]), axis=1)
@@ -92,14 +95,20 @@ def gbrt(train_data, test_data, label_name, params):
 
         train_mean_loss = np.mean((y_train - y_train_ensemble_pred) ** 2)
         test_mean_loss = np.mean((y_test - y_test_ensemble_pred) ** 2)
+        if params.verbose >= 1:
+            print('Add tree number {}'.format(m+1))
+            print('Train mean loss is: {}'.format(train_mean_loss))
+            print('Test mean loss is: {}'.format(test_mean_loss))
+        logs['trees'].append(m)
+        logs['train_loss'].append(train_mean_loss)
+        logs['test_loss'].append(test_mean_loss)
 
-        print('Add tree number {}'.format(m+1))
-        print('Train mean loss is: {}'.format(train_mean_loss))
-        print('Test mean loss is: {}'.format(test_mean_loss))
+    logs['training_time'] = time() - start_time
+    logs['params'] = params
 
     train_data[label_name] = y_train
 
-    return tree_ensemble
+    return tree_ensemble, logs
 
 
 

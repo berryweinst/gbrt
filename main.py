@@ -7,7 +7,7 @@ import argparse
 
 class HParams(object):
     def __init__(self, num_trees=50, max_depth=3, min_node_size=0, weight_decay=1.0, sub_samp=1.0, num_thresholds=10,
-                 verbose=True):
+                 verbose=1):
         self.num_trees = num_trees
         self.max_depth = max_depth
         self.min_node_size = min_node_size
@@ -19,14 +19,14 @@ class HParams(object):
 
 parser = argparse.ArgumentParser()
 
-# example: python main.py -nt 300 -md 4 -mns 0 -wd 0.01 -ss 0.7 -v 0 -nt 10
+# example: python main.py -nt 300 -md 4 -mns 0 -wd 0.01 -ss 0.7 -v 0 -nthreh 10
 parser.add_argument("-nt", "--num_trees", help="Number of trees", type=int)
 parser.add_argument("-md", "--max_depth", help="Max trees depth", type=int)
 parser.add_argument("-mns", "--min_node_size", help="Min Node Size", type=int)
 parser.add_argument("-wd", "--weight_decay", help="Learning Rate/Weight decay", type=float)
 parser.add_argument("-ss", "--sub_samp", help="sub sampling fraction", type=float)
 parser.add_argument("-v", "--verbose", help="verbose", type=int)
-parser.add_argument("-nt", "--num_threshold", help="number of divisions for splits", type=int)
+parser.add_argument("-nthreh", "--num_threshold", help="num Thresholds", type=int)
 
 args = parser.parse_args()
 

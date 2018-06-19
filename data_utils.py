@@ -12,19 +12,27 @@ def split_data(data, train_percent=0.8):
     return train, test
 
 
-def parse_data(path):
-    df = pd.read_csv(path, index_col=0)
-    df = df[~df.SalePrice.isnull()]
-    if 'MSSubClass' in df.columns:
-        df['MSSubClass'] = df.MSSubClass.astype(object)  # categorical feature with numerical values
+def parse_data(path, for_train=True, train_dataset=None):
+    if for_train:
+        df = pd.read_csv(path, index_col=0)
+        df = df[~df.SalePrice.isnull()]
+        if 'MSSubClass' in df.columns:
+            df['MSSubClass'] = df.MSSubClass.astype(object)  # categorical feature with numerical values
 
-    df_train, df_test = split_data(df)
+        df_train, df_test = split_data(df)
 
-    train_dataset = TrainDataSet(df_train)
-    test_dataset = TestDataSet(df_test, train_dataset.categorical_columns_coding_map,
-                               train_dataset.numerical_columns_means)
+        train_dataset = TrainDataSet(df_train)
+        test_dataset = TestDataSet(df_test, train_dataset.categorical_columns_coding_map,
+                                   train_dataset.numerical_columns_means)
 
-    return train_dataset, test_dataset
+        return train_dataset, test_dataset
+    else:
+        df = pd.read_csv(path, index_col=0)
+        if 'MSSubClass' in df.columns:
+            df['MSSubClass'] = df.MSSubClass.astype(object)  # categorical feature with numerical values
+        return TestDataSet(df, train_dataset.categorical_columns_coding_map,
+                                   train_dataset.numerical_columns_means)
+
 
 
 def encode_categorical_columns(data, encoding_map):

@@ -76,6 +76,14 @@ def gbrt(train_data, test_data, label_name, params):
     y_test_ensemble_pred = pd.Series(data=np.zeros_like(y_test), index=y_test.index)
     logs = {'trees': [], 'train_loss': [], 'test_loss': []}
     for m in range(params.num_trees):
+
+        # Update learning by rate decay factor
+        if m % params.lr_update == 0 and m != 0:
+            params.weight_decay *= params.lr_step
+            if params.verbose:
+                print("Updating leraning rate to new value of %.3f" % (params.lr_update))
+
+
         grad = -(y_train - y_train_ensemble_pred)
         train_data[label_name] = grad
         sub_data = train_data.sample(frac=params.sub_samp)

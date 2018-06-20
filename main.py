@@ -3,18 +3,23 @@ from gbrt_algorithm import gbrt
 from feature_selection import ensemble_feature_importance
 import operator
 import pandas as pd
+import numpy as np
 import argparse
+import time
+
 
 
 class HParams(object):
     def __init__(self, num_trees=50, max_depth=3, min_node_size=0, weight_decay=1.0, sub_samp=1.0, num_thresholds=10,
-                 verbose=1):
+                 lr_step=0.5, lr_update=100, verbose=1):
         self.num_trees = num_trees
         self.max_depth = max_depth
         self.min_node_size = min_node_size
         self.weight_decay = weight_decay
         self.sub_samp = sub_samp
         self.num_thresholds = num_thresholds
+        self.lr_step = lr_step
+        self.lr_update = lr_update
         self.verbose = verbose
 
 
@@ -26,18 +31,29 @@ parser.add_argument("-md", "--max_depth", help="Max trees depth", type=int)
 parser.add_argument("-mns", "--min_node_size", help="Min Node Size", type=int)
 parser.add_argument("-wd", "--weight_decay", help="Learning Rate/Weight decay", type=float)
 parser.add_argument("-ss", "--sub_samp", help="sub sampling fraction", type=float)
-parser.add_argument("-v", "--verbose", help="verbose", type=int)
 parser.add_argument("-nthreh", "--num_threshold", help="num Thresholds", type=int)
+parser.add_argument("-lrs", "--lr_step", help="lr rate decay", type=float)
+parser.add_argument("-lru", "--lr_update", help="lr update num iterations ", type=int)
+parser.add_argument("-v", "--verbose", help="verbose", type=int)
 
 args = parser.parse_args()
 
 train_dataset, test_dataset = parse_data('data/train.csv')
 params = HParams(num_trees=args.num_trees, max_depth=args.max_depth, min_node_size=args.min_node_size,
-                 weight_decay=args.weight_decay, sub_samp=args.sub_samp, verbose=args.verbose,
-                 num_thresholds=args.num_threshold)
-model, logs = gbrt(train_data=train_dataset.data, test_data=test_dataset.data, label_name=train_dataset.label_name, params=params)
-# ToDo - save logs to file
+                 weight_decay=args.weight_decay, sub_samp=args.sub_samp,
+                 num_thresholds=args.num_threshold, verbose=args.verbose)
 
+
+# Training
+model, logs = gbrt(train_data=train_dataset.data, test_data=test_dataset.data, label_name=train_dataset.label_name, params=params)
+
+# Save model hyper params and training progress of the loss
+logs['Hparams'] = HParams
+np.save('nt_%d__md_%d__mns_%d__wd_%d__ss_%d__nthr_%d.npy' % \
+        (args.num_trees, args.max_depth, args.min_node_size, args.weight_decay, args.sub_samp, args.num_threshold), logs)
+
+
+# Test feature importace selection
 features_dict = ensemble_feature_importance(test_dataset.data, train_dataset.label_name, model)
 n = 5
 print("Most %d important features are:" % n)

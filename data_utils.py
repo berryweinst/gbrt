@@ -12,14 +12,14 @@ def split_data(data, train_percent=0.8):
     return train, test
 
 
-def parse_data(path, label_name='SalePrice', for_train=True, train_dataset=None):
+def parse_data(path, label_name='SalePrice', for_train=True, train_dataset=None, train_percent=0.8):
     if for_train:
         df = pd.read_csv(path, index_col=0)
         df = df[~df[label_name].isnull()]
         if 'MSSubClass' in df.columns:
             df['MSSubClass'] = df.MSSubClass.astype(object)  # categorical feature with numerical values
 
-        df_train, df_test = split_data(df)
+        df_train, df_test = split_data(df, train_percent=train_percent)
 
         train_dataset = TrainDataSet(df_train, label_name=label_name)
         test_dataset = TestDataSet(df_test, train_dataset.categorical_columns_coding_map,

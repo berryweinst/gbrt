@@ -66,3 +66,9 @@ test_kaggle = parse_data('data/test.csv', for_train=False, train_dataset=train_d
 test_kaggle_pred = test_kaggle.data.apply(lambda xi: model.evaluate(xi[:], params.num_trees), axis=1)
 df_test_kaggle_pred = pd.DataFrame({'Id': test_kaggle_pred.index, 'SalePrice': test_kaggle_pred.values})
 df_test_kaggle_pred.to_csv('data/pred_kaggle.csv', index=False)
+
+
+#Save model
+import pickle
+pickle.dump(model, open('model_save__nt_%d__md_%d__mns_%d__wd_%d__ss_%d__nthr_%d.pkl' % \
+                        (args.num_trees, args.max_depth, args.min_node_size, args.weight_decay, args.sub_samp, args.num_threshold), 'wb'))

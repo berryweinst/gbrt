@@ -71,7 +71,7 @@ def gbrt(train_data, test_data, label_name, params):
     y_train = train_data[label_name].copy()
     y_test = test_data[label_name]
 
-    f = pd.Series(data=np.zeros_like(y_train), index=y_train.index)
+    f = pd.Series(data=np.mean(y_train), index=y_train.index)
     y_train_ensemble_pred = pd.Series(data=np.zeros_like(y_train), index=y_train.index)
     y_test_ensemble_pred = pd.Series(data=np.zeros_like(y_test), index=y_test.index)
     logs = {'trees': [], 'train_loss': [], 'test_loss': []}
